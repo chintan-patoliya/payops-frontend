@@ -1,15 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { createVendor } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function CreateVendorPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [form, setForm] = useState({ name: '', upi_id: '', bank_account: '', ifsc: '' });
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+
+  // Redirect FINANCE users - only OPS can create vendors
+  useEffect(() => {
+    if (user && user.role !== 'OPS') {
+      router.push('/vendors');
+    }
+  }, [user, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

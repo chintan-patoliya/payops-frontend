@@ -229,23 +229,26 @@ Used consistently across all pages for loading states.
 
 ### Add Vendor (`/vendors/create`)
 
+- **OPS only** - FINANCE users cannot access
 - Form: Name (required), UPI ID, Bank Account, IFSC
-- Validation and error handling
-- Success redirect to vendor list
+- Custom validation with field-level error messages
+- Redirects to vendor list on success
 
 ### Payout List (`/payouts`)
 
-- Table: Vendor, Amount, Mode, Status, Created Date
-- **Filters:** Status dropdown, Vendor dropdown
-- "Create Payout" button visible to **all authenticated users**
+- Table of all payouts with status badges
+- Filters: Status (Draft, Submitted, Approved, Rejected), Vendor
+- Click row to view details
+- "Create Payout" button visible to **OPS users only**
 - Click any row to view details
 
 ### Create Payout (`/payouts/create`)
 
-- **Both OPS and FINANCE roles** can create payouts
-- Form: Vendor (dropdown), Amount, Mode (UPI/IMPS/NEFT), Note
+- **OPS only** - FINANCE users cannot access
+- Form: Vendor (dropdown), Amount, Payment Mode (UPI/IMPS/NEFT), Note
 - Custom validation with field-level error messages
-- Creates payout in Draft status
+- Payout created with **Draft** status
+- Redirects to payout detail page on success
 
 ### Payout Detail (`/payouts/[id]`)
 
@@ -298,9 +301,16 @@ The API service (`services/api.js`) handles CORS intelligently:
 
 The frontend conditionally renders UI elements based on user role:
 
-- **OPS users** see: Submit button on Draft payouts
-- **FINANCE users** see: Approve/Reject buttons on Submitted payouts
-- **Both roles** can: Create payouts, View all payouts, View all vendors, Create vendors
+- **OPS users** can:
+  - Create vendors ("Add Vendor" button visible)
+  - Create payouts ("Create Payout" button visible)
+  - Submit Draft payouts (Submit button on payout details)
+  - View all payouts and vendors
+
+- **FINANCE users** can:
+  - Approve/Reject Submitted payouts (buttons on payout details)
+  - View all payouts and vendors
+  - **Cannot** create vendors or payouts (buttons hidden)
 
 > **Important:** All role restrictions are enforced **server-side**. The frontend role-based UI is purely for UX — even if bypassed, the backend will reject unauthorized actions.
 

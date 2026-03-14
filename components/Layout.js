@@ -6,12 +6,18 @@ export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  const navLinks = [
-    { href: '/payouts', label: 'Payouts' },
-    { href: '/payouts/create', label: 'Create Payout' },
-    { href: '/vendors', label: 'Vendors' },
-    { href: '/vendors/create', label: 'Add Vendor' },
+  // Define all navigation links with role requirements
+  const allNavLinks = [
+    { href: '/payouts', label: 'Payouts', roles: ['OPS', 'FINANCE'] },
+    { href: '/payouts/create', label: 'Create Payout', roles: ['OPS'] },
+    { href: '/vendors', label: 'Vendors', roles: ['OPS', 'FINANCE'] },
+    { href: '/vendors/create', label: 'Add Vendor', roles: ['OPS'] },
   ];
+
+  // Filter navigation links based on user role
+  const navLinks = allNavLinks.filter(link => 
+    !user || link.roles.includes(user.role)
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">

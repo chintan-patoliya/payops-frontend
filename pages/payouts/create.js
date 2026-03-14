@@ -14,6 +14,13 @@ export default function CreatePayoutPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
+  // Redirect FINANCE users - only OPS can create payouts
+  useEffect(() => {
+    if (user && user.role !== 'OPS') {
+      router.push('/payouts');
+    }
+  }, [user, router]);
+
   useEffect(() => {
     fetchVendors();
   }, []);

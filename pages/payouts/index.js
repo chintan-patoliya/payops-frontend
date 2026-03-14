@@ -16,6 +16,8 @@ export default function PayoutsPage() {
   const [filters, setFilters] = useState({ status: '', vendor_id: '' });
 
   useEffect(() => {
+    console.log('Current user:', user);
+    console.log('User role:', user?.role);
     fetchVendors();
   }, []);
 
@@ -56,12 +58,14 @@ export default function PayoutsPage() {
       <Layout>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Payouts</h1>
-          <Link
-            href="/payouts/create"
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            + Create Payout
-          </Link>
+          {user?.role === 'OPS' && (
+            <Link
+              href="/payouts/create"
+              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              + Create Payout
+            </Link>
+          )}
         </div>
 
         {/* Filters */}

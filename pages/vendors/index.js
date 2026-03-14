@@ -4,13 +4,17 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import Link from 'next/link';
 import { getVendors } from '../../services/api';
 import Loader from '../../components/Loader';
+import { useAuth } from '../../context/AuthContext';
 
 export default function VendorsPage() {
+  const { user } = useAuth();
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    console.log('Current user:', user);
+    console.log('User role:', user?.role);
     fetchVendors();
   }, []);
 
@@ -31,12 +35,14 @@ export default function VendorsPage() {
       <Layout>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Vendors</h1>
-          <Link
-            href="/vendors/create"
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            + Add Vendor
-          </Link>
+          {user?.role === 'OPS' && (
+            <Link
+              href="/vendors/create"
+              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              + Add Vendor
+            </Link>
+          )}
         </div>
 
         {error && (
@@ -50,9 +56,11 @@ export default function VendorsPage() {
         ) : vendors.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <p>No vendors found.</p>
-            <Link href="/vendors/create" className="text-indigo-600 hover:underline mt-2 inline-block">
-              Add your first vendor
-            </Link>
+            {user?.role === 'OPS' && (
+              <Link href="/vendors/create" className="text-indigo-600 hover:underline mt-2 inline-block">
+                Add your first vendor
+              </Link>
+            )}
           </div>
         ) : (
           <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
