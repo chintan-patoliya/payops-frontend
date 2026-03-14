@@ -21,13 +21,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await loginAPI(email, password);
-    const { token: newToken, user: userData } = res.data.data;
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setToken(newToken);
-    setUser(userData);
-    router.push('/payouts');
+    try {
+      const res = await loginAPI(email, password);
+      const { token: newToken, user: userData } = res.data.data;
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setToken(newToken);
+      setUser(userData);
+      router.push('/payouts');
+    } catch (error) {
+      throw error;
+    }
   };
 
   const logout = () => {

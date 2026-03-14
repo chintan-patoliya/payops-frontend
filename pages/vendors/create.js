@@ -8,15 +8,45 @@ export default function CreateVendorPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: '', upi_id: '', bank_account: '', ifsc: '' });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    if (fieldErrors[name]) {
+      setFieldErrors({ ...fieldErrors, [name]: '' });
+    }
+  };
+
+  const validateField = (name, value) => {
+    if (name === 'name' && !value.trim()) {
+      return 'Vendor name is required';
+    }
+    if (name === 'ifsc' && value && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(value)) {
+      return 'Invalid IFSC code format (e.g., SBIN0001234)';
+    }
+    return '';
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    errors.name = validateField('name', form.name);
+    errors.ifsc = validateField('ifsc', form.ifsc);
+    
+    const hasErrors = Object.values(errors).some(err => err !== '');
+    setFieldErrors(errors);
+    return !hasErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -49,12 +79,20 @@ export default function CreateVendorPage() {
               <input
                 type="text"
                 name="name"
-                required
                 value={form.name}
                 onChange={handleChange}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                onBlur={(e) => setFieldErrors({ ...fieldErrors, name: validateField('name', e.target.value) })}
+                className={`block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 text-sm ${
+                  fieldErrors.name
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                    : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                }`}
                 placeholder="Enter vendor name"
+                title="Enter the vendor's full name"
               />
+              {fieldErrors.name && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.name}</p>
+              )}
             </div>
 
             <div>
@@ -66,6 +104,7 @@ export default function CreateVendorPage() {
                 onChange={handleChange}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                 placeholder="vendor@upi"
+                title="Enter UPI ID (optional)"
               />
             </div>
 
@@ -78,6 +117,7 @@ export default function CreateVendorPage() {
                 onChange={handleChange}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                 placeholder="Account number"
+                title="Enter bank account number (optional)"
               />
             </div>
 
@@ -88,9 +128,18 @@ export default function CreateVendorPage() {
                 name="ifsc"
                 value={form.ifsc}
                 onChange={handleChange}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                placeholder="IFSC code"
+                onBlur={(e) => setFieldErrors({ ...fieldErrors, ifsc: validateField('ifsc', e.target.value) })}
+                className={`block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 text-sm ${
+                  fieldErrors.ifsc
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                    : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                }`}
+                placeholder="SBIN0001234"
+                title="Enter IFSC code (optional, format: SBIN0001234)"
               />
+              {fieldErrors.ifsc && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.ifsc}</p>
+              )}
             </div>
 
             <div className="flex space-x-3 pt-2">
@@ -98,6 +147,7 @@ export default function CreateVendorPage() {
                 type="submit"
                 disabled={submitting}
                 className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Click to create vendor"
               >
                 {submitting ? 'Creating...' : 'Create Vendor'}
               </button>

@@ -11,15 +11,12 @@ export default function CreatePayoutPage() {
   const [vendors, setVendors] = useState([]);
   const [form, setForm] = useState({ vendor_id: '', amount: '', mode: 'UPI', note: '' });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user?.role !== 'OPS') {
-      router.replace('/payouts');
-      return;
-    }
     fetchVendors();
-  }, [user, router]);
+  }, []);
 
   const fetchVendors = async () => {
     try {
@@ -31,12 +28,47 @@ export default function CreatePayoutPage() {
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    if (fieldErrors[name]) {
+      setFieldErrors({ ...fieldErrors, [name]: '' });
+    }
+  };
+
+  const validateField = (name, value) => {
+    if (name === 'vendor_id' && !value) {
+      return 'Please select a vendor';
+    }
+    if (name === 'amount') {
+      if (!value) {
+        return 'Amount is required';
+      }
+      const numValue = parseFloat(value);
+      if (isNaN(numValue) || numValue <= 0) {
+        return 'Amount must be greater than 0';
+      }
+    }
+    return '';
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    errors.vendor_id = validateField('vendor_id', form.vendor_id);
+    errors.amount = validateField('amount', form.amount);
+    
+    const hasErrors = Object.values(errors).some(err => err !== '');
+    setFieldErrors(errors);
+    return !hasErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -71,16 +103,24 @@ export default function CreatePayoutPage() {
               </label>
               <select
                 name="vendor_id"
-                required
                 value={form.vendor_id}
                 onChange={handleChange}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                onBlur={(e) => setFieldErrors({ ...fieldErrors, vendor_id: validateField('vendor_id', e.target.value) })}
+                className={`block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 text-sm ${
+                  fieldErrors.vendor_id
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                    : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                }`}
+                title="Select the vendor for this payout"
               >
                 <option value="">Select vendor</option>
                 {vendors.map((v) => (
                   <option key={v._id} value={v._id}>{v.name}</option>
                 ))}
               </select>
+              {fieldErrors.vendor_id && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.vendor_id}</p>
+              )}
             </div>
 
             <div>
@@ -88,16 +128,22 @@ export default function CreatePayoutPage() {
                 Amount (₹) <span className="text-red-500">*</span>
               </label>
               <input
-                type="number"
+                type="text"
                 name="amount"
-                required
-                min="0.01"
-                step="0.01"
                 value={form.amount}
                 onChange={handleChange}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                onBlur={(e) => setFieldErrors({ ...fieldErrors, amount: validateField('amount', e.target.value) })}
+                className={`block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 text-sm ${
+                  fieldErrors.amount
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                    : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                }`}
                 placeholder="0.00"
+                title="Enter payout amount (must be greater than 0)"
               />
+              {fieldErrors.amount && (
+                <p className="mt-1 text-xs text-red-600">{fieldErrors.amount}</p>
+              )}
             </div>
 
             <div>
@@ -106,10 +152,10 @@ export default function CreatePayoutPage() {
               </label>
               <select
                 name="mode"
-                required
                 value={form.mode}
                 onChange={handleChange}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                title="Select payment mode"
               >
                 <option value="UPI">UPI</option>
                 <option value="IMPS">IMPS</option>
@@ -126,6 +172,7 @@ export default function CreatePayoutPage() {
                 rows={3}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                 placeholder="Optional note"
+                title="Add any additional notes (optional)"
               />
             </div>
 
@@ -134,6 +181,7 @@ export default function CreatePayoutPage() {
                 type="submit"
                 disabled={submitting}
                 className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Click to create payout"
               >
                 {submitting ? 'Creating...' : 'Create Payout'}
               </button>

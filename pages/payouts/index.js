@@ -5,6 +5,7 @@ import StatusBadge from '../../components/StatusBadge';
 import Link from 'next/link';
 import { getPayouts, getVendors } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import Loader from '../../components/Loader';
 
 export default function PayoutsPage() {
   const { user } = useAuth();
@@ -55,14 +56,12 @@ export default function PayoutsPage() {
       <Layout>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Payouts</h1>
-          {user?.role === 'OPS' && (
-            <Link
-              href="/payouts/create"
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              + Create Payout
-            </Link>
-          )}
+          <Link
+            href="/payouts/create"
+            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            + Create Payout
+          </Link>
         </div>
 
         {/* Filters */}
@@ -107,9 +106,7 @@ export default function PayoutsPage() {
         )}
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          </div>
+          <Loader />
         ) : payouts.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <p>No payouts found.</p>

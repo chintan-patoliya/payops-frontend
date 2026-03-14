@@ -5,6 +5,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import StatusBadge from '../../components/StatusBadge';
 import { getPayoutById, submitPayout, approvePayout, rejectPayout } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import Loader from '../../components/Loader';
 
 export default function PayoutDetailPage() {
   const router = useRouter();
@@ -89,9 +90,7 @@ export default function PayoutDetailPage() {
     return (
       <ProtectedRoute>
         <Layout>
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          </div>
+          <Loader />
         </Layout>
       </ProtectedRoute>
     );

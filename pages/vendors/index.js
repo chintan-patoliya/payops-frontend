@@ -3,6 +3,7 @@ import Layout from '../../components/Layout';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import Link from 'next/link';
 import { getVendors } from '../../services/api';
+import Loader from '../../components/Loader';
 
 export default function VendorsPage() {
   const [vendors, setVendors] = useState([]);
@@ -45,9 +46,7 @@ export default function VendorsPage() {
         )}
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          </div>
+          <Loader />
         ) : vendors.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <p>No vendors found.</p>

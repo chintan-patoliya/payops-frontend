@@ -20,7 +20,7 @@ export default function Layout({ children }) {
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center space-x-8">
               <Link href="/payouts" className="text-xl font-bold text-indigo-600">
-                PayoutFlow
+                PayOps
               </Link>
               <div className="hidden md:flex space-x-1">
                 {navLinks.map((link) => (
